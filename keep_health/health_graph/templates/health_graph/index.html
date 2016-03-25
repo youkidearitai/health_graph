@@ -1,6 +1,161 @@
 {% load staticfiles %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'health_graph/style.css' %}" >
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+<script type="text/javascript">
+
+window.onload = function() {
+    var stage;
+    stage = d3.select("#d3graph").append("svg:svg").attr("width", 1300).attr("height", 800);
+
+    var graph_scale = 1300 / 1440;
+
+    var colors = d3.scale.category10();
+    var d3Line = d3.svg.line()
+        .x(function(d,i){return i * graph_scale;} )
+        .y(function(d,i){return (1024 - d) / 1024 * 600});
+
+    var seatcountLine = d3.svg.line()
+        .x(function(d,i) { return i * graph_scale; })
+        .y(function(d,i) { return (60 - d) * 10; });
+
+    var points = {
+        seat_count: new Array(),
+        average: new Array(),
+        time: new Array()
+    };
+
+    // http://bl.ocks.org/aaizemberg/78bd3dade9593896a59d
+    var point_colors = {
+        seat_count: 1,
+        average: 2,
+        time: 3
+    };
+
+    var select_date = new Date();
+
+    var setdate = function() {
+        var dd = new Date();
+        var yy = dd.getYear() + 1900;
+        var mm = dd.getMonth() + 1;
+        var dd = dd.getDate();
+
+        if (mm < 10) {
+            mm = "0" + mm;
+        }
+        if (dd < 10) {
+            dd = "0" + dd;
+        }
+
+        return yy + "-" + mm + "-" + dd;
+    }
+
+    function zeropad(n) {
+        if (n < 10) {
+            return "0" + n;
+        }
+        return n;
+    }
+
+    function requestHtml(select_date) {
+        points = {
+            seat_count: new Array(),
+            average: new Array(),
+            time: new Array()
+        };
+        stage.selectAll(".fourtext").remove();
+        d3.json("api/sensor/pressure/view/" + select_date, function(error, values) {
+            for (var i = 0, min = 0, len = 1440, size = values.length; min < len; min++) {
+                if (i >= size) {
+                    update(1023.0, 'average');
+                    updateSeatCount(60, 'seat_count');
+                    if (min % 60 == 0) {
+                        timeUpdate(zeropad(parseInt(min / 60)) + ":" + zeropad(min % 60), min);
+                    }
+                    continue;
+                }
+
+                var d = new Date(values[i].time);
+                if ((d.getHours() * 60) + d.getMinutes() == min) {
+                    updateSeatCount(values[i].seat_count, 'seat_count');
+                    update(values[i].average, 'average');
+
+                    i++;
+                } else {
+                    update(1023.0, 'average');
+                    updateSeatCount(60, 'seat_count');
+                }
+                if (min % 60 == 0) {
+                    timeUpdate(zeropad(parseInt(min / 60)) + ":" + zeropad(min % 60), min);
+                }
+            }
+        });
+    }
+
+    requestHtml(setdate());
+    var select = d3.select("#seat_pressure_date").on("change", function() {
+        requestHtml(d3.select("#seat_pressure_date").node().value);
+    });
+
+    function timeUpdate(value, i) {
+        textUpdate(value, i * graph_scale, 700);
+    }
+
+    function textUpdate(value, x, y) {
+        stage.append("text").attr("class", "fourtext").attr("x", x).attr("y", y).text(value);
+    }
+
+    function updateSeatCount(value, key) {
+        points[key].push(value);
+
+        if(points[key].length > 1440) {
+            points[key].shift();
+        }
+
+        // 削除する
+        stage.selectAll("." + key).remove();
+
+        // 描画する
+        stage.append("path")
+            .attr("d", seatcountLine(points[key]))
+            .attr("stroke", colors(point_colors[key]))
+            .attr("fill", "none")
+            .attr("class", key)
+            .attr("opacity", 3);
+    }
+
+    function update(value, key) {
+        points[key].push(value);
+
+        if(points[key].length > 1440) {
+            points[key].shift();
+        }
+
+        // 削除する
+        stage.selectAll("." + key).remove();
+
+        // 描画する
+        stage.append("path")
+            .attr("d", d3Line(points[key]))
+            .attr("stroke", colors(point_colors[key]))
+            .attr("fill", "none")
+            .attr("class", key)
+            .attr("opacity", 3);
+    }
+};
+</script>
+<select id="seat_pressure_date">
+    <option value="2016-03-21">2016-03-21</option>
+    <option value="2016-03-22">2016-03-22</option>
+    <option value="2016-03-23">2016-03-23</option>
+    <option value="2016-03-24">2016-03-24</option>
+    <option value="2016-03-25">2016-03-25</option>
+</select>
+
+<div id="d3graph" style="border:1px solid #FFF; margin-bottom:10px"></div>
+
+
 
 {% if latest_question_list %}
   <ul>

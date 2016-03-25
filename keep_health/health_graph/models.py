@@ -34,6 +34,12 @@ class Choice(models.Model):
         return self.choice_text
 
 class SeatPressure(models.Model):
-    pressure = models.FloatField(default=1023)
-    created = models.DateTimeField('date published')
+    minutes = models.DateTimeField()
+    average = models.FloatField()
+    seat_count = models.IntegerField()
+
+    def pressure_sensor_graph(self):
+        return datetime.datetime.now() - datetime.timedelta(days=1) <= \
+                self.created < \
+                datetime.datetime.now()
 
