@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
 from .models import Question, SeatPressure
+from django.views.decorators.csrf import csrf_exempt
 import datetime
 import json
 import pytz
@@ -47,6 +48,25 @@ def vote(request, question_id):
         selected_choice.votes += 1
         selected_choice.save()
         return HttpResponseRedirect(reverse('health_graph:results', args=(question.id,)))
+
+@csrf_exempt
+def seat_pressure_append(request):
+    seat_pressure = None
+    try:
+        pressure_data = json.loads(request.body)
+    except ValueError:
+        return Http404("Not data")
+
+    for data in pressure_data:
+        print data
+        sp = SeatPressure(
+            seat_count=int(data['seat_count']),
+            average=float(data['average']),
+            minutes=data['time']
+        )
+        sp.save()
+
+    return HttpResponse('success', status=200)
 
 def health_pressure_append(request, date):
     timestamp = datetime.datetime.strptime(date, "%Y-%m-%d")
