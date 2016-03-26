@@ -58,11 +58,11 @@ def seat_pressure_append(request):
         return Http404("Not data")
 
     for data in pressure_data:
-        print data
+        timestamp = datetime.datetime.strptime(data['time'], "%Y-%m-%d %H:%M")
         sp = SeatPressure(
             seat_count=int(data['seat_count']),
             average=float(data['average']),
-            minutes=data['time']
+            minutes=timestamp.strftime("%Y-%m-%d %H:%M:00")
         )
         sp.save()
 
