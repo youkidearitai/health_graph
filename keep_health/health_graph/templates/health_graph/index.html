@@ -7,14 +7,14 @@
 
 window.onload = function() {
     var stage;
-    stage = d3.select("#d3graph").append("svg:svg").attr("width", 1300).attr("height", 800);
+    stage = d3.select("#d3graph").append("svg:svg").attr("width", 1300).attr("height", 650);
 
     var graph_scale = 1300 / 1440;
 
     var colors = d3.scale.category10();
     var d3Line = d3.svg.line()
         .x(function(d,i){return i * graph_scale;} )
-        .y(function(d,i){return (1024 - d) / 1024 * 600});
+        .y(function(d,i){return (1024 - d) / 1024 * 550});
 
     var seatcountLine = d3.svg.line()
         .x(function(d,i) { return i * graph_scale; })
@@ -99,7 +99,7 @@ window.onload = function() {
     });
 
     function timeUpdate(value, i) {
-        textUpdate(value, i * graph_scale, 700);
+        textUpdate(value, i * graph_scale, 600);
     }
 
     function textUpdate(value, x, y) {
