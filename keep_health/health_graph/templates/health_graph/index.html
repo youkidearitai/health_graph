@@ -18,8 +18,7 @@
     }
 
     .space {
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin: 10px;
     }
 
     .tekimen-background {
@@ -66,7 +65,7 @@ window.onload = function() {
     var select_date = new Date();
 
     var setdate = function() {
-        var dd = new Date();
+        var dd = new Date("2016/03/25");
         var yy = dd.getYear() + 1900;
         var mm = dd.getMonth() + 1;
         var dd = dd.getDate();
