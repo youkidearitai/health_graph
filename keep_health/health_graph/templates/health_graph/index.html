@@ -97,8 +97,8 @@ window.onload = function() {
         d3.json("api/sensor/pressure/view/" + select_date, function(error, values) {
             for (var i = 0, min = 0, len = 1440, size = values.length; min < len; min++) {
                 if (i >= size) {
-                    update(1023.0, 'average');
-                    updateSeatCount(60, 'seat_count');
+                    updateValue(1023.0, 'average');
+                    updateValue(60, 'seat_count');
                     if (min % 60 == 0) {
                         timeUpdate(zeropad(parseInt(min / 60)) + ":" + zeropad(min % 60), min);
                     }
@@ -107,18 +107,20 @@ window.onload = function() {
 
                 var d = new Date(values[i].time);
                 if ((d.getHours() * 60) + d.getMinutes() == min) {
-                    updateSeatCount(values[i].seat_count, 'seat_count');
-                    update(values[i].average, 'average');
+                    updateValue(values[i].seat_count, 'seat_count');
+                    updateValue(values[i].average, 'average');
 
                     i++;
                 } else {
-                    update(1023.0, 'average');
-                    updateSeatCount(60, 'seat_count');
+                    updateValue(1023.0, 'average');
+                    updateValue(60, 'seat_count');
                 }
                 if (min % 60 == 0) {
                     timeUpdate(zeropad(parseInt(min / 60)) + ":" + zeropad(min % 60), min);
                 }
             }
+            update('average');
+            updateSeatCount('seat_count');
         });
     }
 
@@ -135,13 +137,7 @@ window.onload = function() {
         stage.append("text").attr("class", "fourtext").attr("x", x).attr("y", y).text(value);
     }
 
-    function updateSeatCount(value, key) {
-        points[key].push(value);
-
-        if(points[key].length > 1440) {
-            points[key].shift();
-        }
-
+    function updateSeatCount(key) {
         // 削除する
         stage.selectAll("." + key).remove();
 
@@ -154,13 +150,15 @@ window.onload = function() {
             .attr("opacity", 3);
     }
 
-    function update(value, key) {
+    function updateValue(value, key) {
         points[key].push(value);
 
         if(points[key].length > 1440) {
             points[key].shift();
         }
+    }
 
+    function update(key) {
         // 削除する
         stage.selectAll("." + key).remove();
 
@@ -180,10 +178,6 @@ window.onload = function() {
         <h1>ぼくのおうちの状態</h1>
 
         <div class="row">
-            <div id="d3graph" class="white-background" style="border:1px solid #FFF; margin-bottom:10px"></div>
-        </div>
-
-        <div class="row">
             <div class="col-md-6">
                 <h2>指定できる日付</h2>
                     <form>
@@ -199,6 +193,10 @@ window.onload = function() {
                         </div>
                     </form>
             </div>
+        </div>
+
+        <div class="row">
+            <div id="d3graph" class="white-background" style="border:1px solid #FFF; margin-bottom:10px"></div>
         </div>
 
         <div class="row">
