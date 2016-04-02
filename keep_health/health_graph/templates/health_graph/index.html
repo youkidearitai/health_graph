@@ -2,12 +2,35 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<title>健康第一</title>
+<title>ぼくのおうちの状態</title>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" type="text/css" href="{% static 'health_graph/style.css' %}" >
 <link rel="stylesheet" type="text/css" href="{% static 'health_graph/bootstrap-3.3.6-dist/css/bootstrap.css' %}" >
+<style type="text/css">
+
+    .border-main {
+        border-image: url("{% static 'health_graph/bootstrap-3.3.6-dist/img/border.gif' %}") 20 stretch;
+        border-style: solid;
+        border-width: 18px;
+        border-color: white;
+    }
+
+    .space {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .tekimen-background {
+        background: url("{% static 'health_graph/bootstrap-3.3.6-dist/img/background.png' %}");
+    }
+
+    .white-background {
+        background-color: white;
+    }
+
+</style>
 <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 
 <script type="text/javascript">
@@ -153,28 +176,43 @@ window.onload = function() {
 };
 </script>
 </head>
-<body>
-<select id="seat_pressure_date">
-    <option value="2016-03-21">2016-03-21</option>
-    <option value="2016-03-22">2016-03-22</option>
-    <option value="2016-03-23">2016-03-23</option>
-    <option value="2016-03-24">2016-03-24</option>
-    <option value="2016-03-25">2016-03-25</option>
-    <option value="2016-03-26">2016-03-26</option>
-</select>
+<body class="tekimen-background">
+    <div class="container-fluid space border-main">
+        <h1>ぼくのおうちの状態</h1>
 
-<div id="d3graph" style="border:1px solid #FFF; margin-bottom:10px"></div>
+        <div class="row">
+            <div id="d3graph" class="white-background" style="border:1px solid #FFF; margin-bottom:10px"></div>
+        </div>
 
+        <div class="row">
+            <div class="col-md-6">
+                <h2>指定できる日付</h2>
+                    <form>
+                        <div class="form-group">
+                            <select id="seat_pressure_date" class="form-control">
+                                <option value="2016-03-21">2016-03-21</option>
+                                <option value="2016-03-22">2016-03-22</option>
+                                <option value="2016-03-23">2016-03-23</option>
+                                <option value="2016-03-24">2016-03-24</option>
+                                <option value="2016-03-25">2016-03-25</option>
+                                <option value="2016-03-26">2016-03-26</option>
+                            </select>
+                        </div>
+                    </form>
+            </div>
+        </div>
 
-
-{% if latest_question_list %}
-  <ul>
-      {% for question in latest_question_list %}
-      <li><a href="{% url 'health_graph:detail' question.id %}">{{ question.question_text }}</a></li>
-      {% endfor %}
-  </ul>
-{% else %}
-  <p>No health are available.</p>
-{% endif %}
+        <div class="row">
+            {% if latest_question_list %}
+            <ul>
+                {% for question in latest_question_list %}
+                <li><a href="{% url 'health_graph:detail' question.id %}">{{ question.question_text }}</a></li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No health are available.</p>
+            {% endif %}
+        </div>
+    </div>
 </body>
 </html>
