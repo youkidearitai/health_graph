@@ -1,6 +1,6 @@
 # Health Graph Application
 
-まだテスト段階です。
+集めたデータ、グラフにしようと思って作った。まだテスト段階です。
 
 __DO NOT PRODUCTION USE__
 
